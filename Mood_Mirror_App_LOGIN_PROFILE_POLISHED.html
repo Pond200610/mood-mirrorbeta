@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mood Mirror — Fixed Single File App</title>
+<style>
+:root{--cream:#fbf7f0;--white:#fffdf9;--ink:#29263a;--muted:#817b8c;--purple:#9b82d9;--lav:#eee7ff;--pink:#f7dfe9;--mint:#dff1e9;--line:#e8e0ea;--shadow:0 18px 45px rgba(57,45,80,.10);--danger:#d96878}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,"Noto Sans Thai",sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbf7f0,#f6efff 55%,#fff7fa)}
+button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.serif{font-family:Georgia,"Times New Roman",serif}.script{font:italic 25px Georgia,serif}
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px}.auth-box{width:min(1100px,100%);display:grid;grid-template-columns:1.08fr .92fr;background:rgba(255,253,249,.96);border-radius:34px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #fff}
+.art{min-height:650px;padding:52px;background:linear-gradient(145deg,#e9ddfb,#f9e6ef 55%,#e0f1e9);position:relative}.art h1{font:normal 62px/1.02 Georgia,serif;letter-spacing:-3px;margin:90px 0 18px}.art h1 span{color:#765dc0}.art p{max-width:500px;line-height:1.8;color:#625c6c}
+.mirror{position:absolute;right:55px;bottom:42px;width:220px;height:320px;border-radius:30px;background:#302d42;padding:10px;box-shadow:0 28px 55px #6d5e7c55}.mirror-in{height:100%;border-radius:22px;background:linear-gradient(180deg,#f4ecff,#e6f2ec);display:grid;place-items:center;text-align:center}.mirror-in b{font:normal 23px Georgia,serif}.mirror-in small{display:block;color:#81788e;margin-top:8px}
+.auth-panel{padding:55px;display:flex;justify-content:center;flex-direction:column}.auth-panel h2{font:normal 42px Georgia,serif;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 24px}.tabs{display:flex;background:#f3eef7;padding:5px;border-radius:14px;margin-bottom:18px}.tabs button{flex:1;border:0;background:transparent;padding:11px;border-radius:10px;color:var(--muted)}.tabs button.active{background:#fff;box-shadow:0 5px 15px #33294a12;color:var(--ink)}
+.field{margin:13px 0}.field label{font-size:13px;font-weight:bold;display:block;margin-bottom:7px}.field input,.field textarea{width:100%;padding:13px 14px;border:1px solid var(--line);background:#fff;border-radius:13px;outline:none}.field input:focus,.field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 4px #9b82d922}.primary{border:0;background:var(--ink);color:#fff;border-radius:14px;padding:14px 18px;font-weight:800}.secondary{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:13px;padding:11px 14px;font-weight:700}.demo{border:0;background:var(--lav);color:#59469a;border-radius:14px;padding:13px;font-weight:800;width:100%;margin-top:9px}.error{background:#fff0f2;color:#ad4d5b;border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+.shell{min-height:100vh;display:grid;grid-template-columns:240px 1fr}.sidebar{position:sticky;top:0;height:100vh;background:#fffdf9e8;border-right:1px solid var(--line);padding:26px 16px;backdrop-filter:blur(15px)}.brand{padding:4px 12px 28px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;text-align:left;padding:13px 14px;border-radius:14px;color:#716a7b;font-weight:700}.nav button.active,.nav button:hover{background:var(--lav);color:#574291}.mini-user{position:absolute;left:16px;right:16px;bottom:20px;border-top:1px solid var(--line);padding-top:14px;display:flex;gap:9px;align-items:center}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#baa5e9,#f0c8dc);font-weight:900}.mini-user small{display:block;color:var(--muted);font-size:11px}
+.main{width:min(1450px,100%);margin:auto;padding:30px clamp(18px,4vw,55px) 80px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.top h1{font:normal 48px Georgia,serif;margin:0}.top p{color:var(--muted);margin:7px 0 0}.page{display:none}.page.active{display:block}.grid{display:grid;gap:18px}.two{grid-template-columns:1.35fr .9fr}.three{grid-template-columns:repeat(3,1fr)}.card{background:#fffdf9ee;border:1px solid #fff;box-shadow:var(--shadow);border-radius:24px;padding:23px}.card h3{font:normal 26px Georgia,serif;margin:0 0 6px}.small{font-size:13px;color:var(--muted)}
+.hero{background:linear-gradient(135deg,#eee5ff,#fbe7ef 55%,#e4f2eb);min-height:320px}.hero h2{font:normal clamp(39px,4vw,60px)/1.0 Georgia,serif;letter-spacing:-2px;margin:55px 0 15px}.hero h2 span{color:#765dc0}.hero p{max-width:650px;color:#615b6c;line-height:1.8}.quote{font:italic 15px Georgia,serif;color:#5f556b}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:18px 0}.mood{border:1px solid var(--line);background:#fff;border-radius:17px;padding:12px 4px;text-align:center}.mood.selected{background:var(--lav);border-color:#9b82d9;box-shadow:0 0 0 3px #9b82d922}.mood span{display:block;font-size:26px;margin-bottom:5px}.mood b{font-size:11px}.textarea{min-height:105px;resize:vertical}
+.save-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.saved{color:#398268;font-size:13px;font-weight:bold}
+.statbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.num{font:normal 32px Georgia,serif}.lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.chart{height:245px;display:flex;align-items:flex-end;gap:9px;padding:15px 6px 4px;border-bottom:1px solid var(--line)}.col{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px}.bar{width:min(42px,80%);min-height:5px;border-radius:12px 12px 4px 4px}.barlabel{font-size:10px;color:var(--muted)}.barvalue{font-size:10px}
+.player{aspect-ratio:16/9;background:#1d1a28;border-radius:17px;overflow:hidden;margin-top:14px}.player iframe{width:100%;height:100%;border:0}.yt-preview{height:100%;position:relative;background:#1d1a28;display:flex;align-items:center;justify-content:center;overflow:hidden}.yt-preview img{width:100%;height:100%;object-fit:cover;display:block;opacity:.82}.yt-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.48))}.yt-play{width:72px;height:50px;border:0;border-radius:14px;background:#ff0033;color:#fff;font-size:25px;box-shadow:0 10px 25px rgba(0,0,0,.28)}.yt-caption{position:absolute;left:14px;bottom:12px;color:#fff;font-weight:800;font-size:13px;text-shadow:0 2px 5px #000}.emptyplayer{height:100%;display:grid;place-items:center;text-align:center;color:#ddd6e7}.emptyplayer b{display:block;font:normal 24px Georgia,serif;margin-bottom:7px}.yt{display:flex;gap:7px;margin-top:10px}.yt input{flex:1;border:1px solid var(--line);border-radius:12px;padding:11px}
+.entry{display:grid;grid-template-columns:45px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;margin-top:10px}.entryicon{width:43px;height:43px;border-radius:13px;background:var(--lav);display:grid;place-items:center;font-size:22px}.entrynote{font-size:13px;color:#625c6c;margin-top:3px}.entrytime{font-size:11px;color:var(--muted);text-align:right}
+.big{font:normal 52px Georgia,serif}.progress{height:9px;background:#eeeaf1;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;border-radius:99px}.response{padding:20px;border-radius:20px;background:linear-gradient(135deg,#f1eaff,#fff0f5)}.response p{font:italic 20px/1.5 Georgia,serif}
+.profile{display:flex;gap:18px;align-items:center}.avatarbig{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#baa5e9,#f0c8dc);font-size:28px;font-weight:900;background-size:cover;background-position:center;border:3px solid #fff;box-shadow:0 8px 22px rgba(50,40,70,.12)}.avatar-click{cursor:pointer}.avatar-click:hover{transform:scale(1.03)}.profile h2{font:normal 34px Georgia,serif;margin:0}.profile p{color:var(--muted)}
+.toast{position:fixed;right:20px;bottom:20px;background:#29263a;color:#fff;padding:13px 17px;border-radius:13px;opacity:0;transform:translateY(8px);transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
+@media(max-width:900px){.shell{display:block}.sidebar{position:fixed;z-index:20;left:0;right:0;bottom:0;top:auto;height:auto;padding:7px 8px;border-right:0;border-top:1px solid var(--line)}.brand,.mini-user{display:none}.nav{grid-template-columns:repeat(5,1fr)}.nav button{text-align:center;padding:8px 3px;font-size:10px}.main{padding-bottom:85px}.two,.three{grid-template-columns:1fr}.top h1{font-size:38px}.art{display:none}.auth-box{grid-template-columns:1fr}.auth-panel{padding:35px 25px}}
+@media(max-width:520px){.moods{gap:4px}.mood{padding:10px 2px}.mood span{font-size:22px}.mood b{font-size:9px}.card{padding:17px}.entry{grid-template-columns:43px 1fr}.entrytime{grid-column:2;text-align:left}}
+
+/* ===== Visual Polish v2 ===== */
+:root{--cream:#fbf8f4;--white:#fffdfb;--ink:#29263a;--muted:#7e7789;--purple:#8f74cf;--purple2:#b49be8;--lav:#f0eaff;--pink:#f8e6ef;--mint:#e5f3ed;--line:#e9e1ec;--shadow:0 20px 55px rgba(55,42,78,.11);--shadow-soft:0 10px 28px rgba(55,42,78,.08)}
+html,body{background:radial-gradient(circle at 10% 10%,#f1e7ff 0,transparent 30%),radial-gradient(circle at 90% 80%,#fde9f1 0,transparent 32%),linear-gradient(135deg,#fbf8f4,#f7f1ff 58%,#fff9fb)}
+.auth{padding:28px}.auth-box{border-radius:38px;box-shadow:0 30px 80px rgba(60,45,85,.15);border:1px solid rgba(255,255,255,.9)}
+.art{background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.7),transparent 28%),linear-gradient(145deg,#e7dcfb,#fae6ef 55%,#e1f2eb)}
+.art:after{content:'';position:absolute;width:190px;height:190px;border-radius:50%;right:-65px;top:-65px;background:rgba(255,255,255,.24);filter:blur(3px)}
+.art h1{font-size:64px;line-height:.98}.art h1 span{background:linear-gradient(90deg,#7559bf,#a27bd5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mirror{box-shadow:0 30px 65px rgba(77,62,92,.24);transform:rotate(-1.5deg);transition:transform .25s ease}.mirror:hover{transform:rotate(0) translateY(-4px)}
+.auth-panel{background:rgba(255,253,249,.72);backdrop-filter:blur(12px)}
+.tabs{border:1px solid #ebe4f0;box-shadow:inset 0 1px 0 #fff}.tabs button.active{color:#5d479e;box-shadow:0 6px 18px rgba(60,45,85,.10)}
+.primary{background:linear-gradient(135deg,#302c43,#45405b);box-shadow:0 9px 20px rgba(45,40,63,.16);transition:.2s}.primary:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(45,40,63,.22)}
+.secondary,.demo{transition:.2s}.secondary:hover{border-color:#cdbfe7;background:#faf7ff}.demo:hover{background:#e8ddff}
+.shell{grid-template-columns:248px 1fr}.sidebar{background:rgba(255,253,249,.82);box-shadow:8px 0 30px rgba(60,45,85,.035)}
+.brand{padding-top:8px}.brand .script{font-size:27px}.nav button{transition:.18s;position:relative}.nav button.active{box-shadow:0 6px 18px rgba(95,70,150,.08)}.nav button.active:before{content:'';position:absolute;left:4px;top:10px;bottom:10px;width:3px;border-radius:5px;background:#8f74cf}
+.main{padding-top:36px}.top h1{letter-spacing:-1.5px}.card,.statbox{transition:transform .2s ease,box-shadow .2s ease}.card:hover{box-shadow:0 24px 60px rgba(57,45,80,.12)}
+.hero{position:relative;overflow:hidden}.hero:after{content:'♡';position:absolute;right:30px;top:25px;font:70px Georgia,serif;color:rgba(118,93,192,.12)}
+.mood{transition:.18s;min-height:78px}.mood:hover{transform:translateY(-2px);border-color:#cbbbe8}.mood.selected{box-shadow:0 7px 20px rgba(116,89,181,.14)}
+.statbox{background:rgba(255,255,255,.82)}.num{color:#4d4560}
+.player{border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 28px rgba(31,25,42,.10)}
+.yt{align-items:center}.yt input{background:#fffdfd;transition:.18s}.yt input:focus{outline:none;border-color:#bda8e6;box-shadow:0 0 0 4px rgba(155,130,217,.12)}
+.profile{padding:4px}.avatarbig{transition:.2s}.avatar-click:hover{box-shadow:0 10px 28px rgba(50,40,70,.18)}
+.response{border:1px solid rgba(155,130,217,.12);box-shadow:var(--shadow-soft)}
+.entry{transition:.18s}.entry:hover{transform:translateX(2px);box-shadow:var(--shadow-soft);border-color:#ddd2e9}
+.toast{box-shadow:0 12px 28px rgba(41,38,58,.18)}
+@media(max-width:900px){.auth{padding:12px}.main{padding-top:22px}.shell{grid-template-columns:1fr}.nav button.active:before{display:none}}
+
+</style>
+</head>
+<body>
+
+<div id="auth" class="auth">
+<div class="auth-box">
+  <div class="art">
+    <div class="script">Mood Mirror ♡</div>
+    <h1>Your Mood<br><span>Our Care.</span></h1>
+    <p>มากกว่าการส่องกระจก คือการเข้าใจตัวเอง — บันทึกอารมณ์ ย้อนมองความรู้สึก และสร้างบรรยากาศด้วยเพลงที่เหมาะกับวันของคุณ</p>
+    <div class="mirror"><div class="mirror-in"><div><b>You look great today ♡</b><small>Mood Mirror</small></div></div></div>
+  </div>
+  <div class="auth-panel">
+    <h2 id="authTitle">Welcome back</h2>
+    <p class="sub" id="authSub">เข้าสู่ Mood Mirror ของคุณ</p>
+    <div class="tabs"><button id="tabLogin" class="active" onclick="setMode('login')">Login</button><button id="tabRegister" onclick="setMode('register')">Create account</button></div>
+    <div id="authError" class="error hidden"></div>
+    <form onsubmit="authSubmit(event)">
+      <div id="nameWrap" class="field hidden"><label>ชื่อ</label><input id="name" type="text" autocomplete="name" placeholder="เช่น Mook"></div>
+      <div class="field"><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+      <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="อย่างน้อย 4 ตัวอักษร" minlength="4" required></div>
+      <button class="primary" id="authBtn" type="submit" style="width:100%">เข้าสู่ระบบ</button>
+    </form>
+    <button class="demo" onclick="demoLogin()">ทดลองใช้ Demo — ไม่ต้องสมัคร</button>
+    <div class="hint">เวอร์ชันนี้ตั้งใจทำเป็นไฟล์เดียว จึงเก็บข้อมูลใน Browser ของเครื่องนี้ด้วย localStorage เพื่อให้เปิดจากไฟล์ HTML โดยตรงแล้วใช้งานได้</div>
+  </div>
+</div>
+</div>
+
+<div id="app" class="hidden">
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="script">Mood Mirror ♡</div><small>Your Mood · Our Care</small></div>
+  <nav class="nav">
+    <button id="nav-dashboard" class="active" onclick="go('dashboard')">⌂<br>Home</button>
+    <button id="nav-history" onclick="go('history')">◷<br>History</button>
+    <button id="nav-insight" onclick="go('insight')">◌<br>Insight</button>
+    <button id="nav-profile" onclick="go('profile')">○<br>Profile</button>
+    <button onclick="logout()">↪<br>Logout</button>
+  </nav>
+  <div class="mini-user"><div id="miniAvatar" class="avatar">M</div><div><b id="miniName">User</b><small id="miniEmail">email</small></div></div>
+</aside>
+
+<main class="main">
+<div class="top"><div><h1 id="title">Good morning.</h1><p id="subtitle">วันนี้เป็นวันที่ดีที่จะเช็กอินกับตัวเอง</p></div><button class="secondary" onclick="go('profile')">Profile</button></div>
+
+<section id="dashboard" class="page active">
+<div class="grid two">
+<div class="card hero"><div class="script">Mood Mirror ♡</div><h2>How are you<br><span>feeling today?</span></h2><p>บันทึกความรู้สึกของคุณในวันนี้ แล้วกลับมาดูเรื่องราวของอารมณ์ตัวเองในภายหลัง</p><div class="quote">“You’ve been through difficult days before. And you made it through.”</div></div>
+<div class="card"><h3>Today’s Mood</h3><div class="small">เลือกความรู้สึกของวันนี้</div>
+<div class="moods">
+<button class="mood" data-m="Happy" onclick="pick('Happy')"><span>☀️</span><b>Happy</b></button>
+<button class="mood" data-m="Calm" onclick="pick('Calm')"><span>🍃</span><b>Calm</b></button>
+<button class="mood" data-m="Okay" onclick="pick('Okay')"><span>🙂</span><b>Okay</b></button>
+<button class="mood" data-m="Stressed" onclick="pick('Stressed')"><span>☁️</span><b>Stressed</b></button>
+<button class="mood" data-m="Sad" onclick="pick('Sad')"><span>🌙</span><b>Sad</b></button>
+</div>
+<div class="field"><label>วันนี้มีอะไรอยู่ในใจ?</label><textarea id="note" class="textarea" placeholder="เขียนความรู้สึกของคุณ..."></textarea></div>
+<div class="save-row"><span id="saved" class="saved"></span><button class="primary" onclick="saveMood()">Save Mood →</button></div>
+</div></div>
+
+<div class="grid three" style="margin-top:18px">
+<div class="statbox"><div id="total" class="num">0</div><div class="lbl">Mood logs</div></div>
+<div class="statbox"><div id="topMood" class="num">—</div><div class="lbl">Most frequent mood</div></div>
+<div class="statbox"><div id="streak" class="num">0</div><div class="lbl">Check-in streak</div></div>
+</div>
+
+<div class="grid two" style="margin-top:18px">
+<div class="card"><h3>Mood over time</h3><div class="small">ข้อมูลจาก Mood ที่บันทึกจริง</div><div id="miniChart" class="chart"></div></div>
+<div class="card"><h3>Your music</h3><div class="small">ใส่ YouTube link เพื่อสร้างบรรยากาศ · กด ▶ เพื่อฟังเพลง</div><div id="player" class="player"><div class="emptyplayer"><div><b>Music for your mood</b><span>ใส่ลิงก์ด้านล่าง</span></div></div></div><div class="hint" style="margin-top:10px">หมายเหตุ: เปิดไฟล์ HTML ตรง ๆ แล้ว YouTube อาจไม่อนุญาต iframe (Error 153) จึงใช้ภาพปก + ปุ่มเปิดเพลงแทน ซึ่งใช้งานได้กับไฟล์เดียวแน่นอน</div><div class="yt"><input id="yt" placeholder="https://www.youtube.com/watch?v=..."><button class="secondary" onclick="addMusic()">Add</button></div></div>
+</div>
+</section>
+
+<section id="history" class="page">
+<div class="card"><h3>Your Mood Journey</h3><div class="small">ย้อนดูอารมณ์ของคุณในแต่ละวัน</div><div id="historyChart" class="chart"></div></div>
+<div class="card" style="margin-top:18px"><h3>Mood History</h3><div id="list"></div></div>
+</section>
+
+<section id="insight" class="page">
+<div class="grid two">
+<div class="card"><div class="small">Your emotional pattern</div><div id="insightMood" class="big">Start here.</div><p id="insightText" style="color:var(--muted);line-height:1.7"></p><div id="bars"></div></div>
+<div class="card"><h3>Emotional Response</h3><div class="response"><div class="small">A little reminder for today</div><p id="response">ทุกความรู้สึกมีพื้นที่ของมัน คุณไม่จำเป็นต้องโอเคทุกวัน</p></div><h3 style="font-size:21px;margin-top:22px">Reflection</h3><p id="reflection" style="color:var(--muted);line-height:1.8"></p></div>
+</div>
+</section>
+
+<section id="profile" class="page">
+<div class="card"><div class="profile"><div class="avatarbig avatar-click" id="bigAvatar" onclick="document.getElementById('photoInput').click()" title="เปลี่ยนรูปโปรไฟล์">M</div><input id="photoInput" type="file" accept="image/*" class="hidden" onchange="changePhoto(event)"><div><h2 id="pName">User</h2><p id="pEmail">email</p></div></div>
+<div class="grid three" style="margin-top:28px"><div class="statbox"><div id="pLogs" class="num">0</div><div class="lbl">Mood logs</div></div><div class="statbox"><div id="pMusic" class="num">0</div><div class="lbl">Music links</div></div><div class="statbox"><div id="pJoined" class="num">—</div><div class="lbl">Joined</div></div></div></div>
+<div class="grid two" style="margin-top:18px"><div class="card"><h3>Profile settings</h3><div class="small" style="margin-bottom:10px">แก้ไขรูปโปรไฟล์ได้ทันที และเปลี่ยนชื่อที่ใช้แสดงในระบบ</div><div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px"><button class="secondary" type="button" onclick="document.getElementById('photoInput2').click()">เปลี่ยนรูปโปรไฟล์</button><button class="secondary" type="button" onclick="removePhoto()">ลบรูป</button></div><input id="photoInput2" type="file" accept="image/*" onchange="changePhoto(event)" style="display:none"><div class="field"><label>Display name</label><input id="editName"></div><button class="primary" onclick="saveProfile()">Save profile</button></div>
+<div class="card"><h3>My data</h3><p class="small" style="line-height:1.8">ข้อมูลของคุณเก็บใน Browser เครื่องนี้ และมี IndexedDB เป็นช่องทางสำรองเมื่อ Browser อนุญาต สามารถ Export JSON เพื่อสำรองข้อมูลได้</p><button class="secondary" onclick="exportData()">Export JSON</button> <button class="secondary" onclick="clearData()">Delete mood data</button><div id="storageStatus" class="hint" style="margin-top:12px"></div></div></div>
+</section>
+</main>
+</div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* Mood Mirror — single-file / no dependencies / no server */
+const KEY='MOOD_MIRROR_FIXED_V3'; const LEGACY_KEY='MOOD_MIRROR_FIXED_V2'; const IDB_NAME='MoodMirrorLocalDB'; const IDB_STORE='app'; let db={users:[],moods:[],music:[]}; let storageMode='local';
+const MOODS={
+ Happy:{e:'☀️',s:5,c:'#f0cf68',msg:'วันนี้มีพลังดี ๆ อยู่กับคุณ อย่าลืมเก็บความรู้สึกนี้ไว้'},
+ Calm:{e:'🍃',s:4,c:'#8cc9ad',msg:'ค่อย ๆ ไปก็ได้ ความสงบเล็ก ๆ ก็มีความหมาย'},
+ Okay:{e:'🙂',s:3,c:'#b8a6df',msg:'ไม่ต้องพิเศษทุกวัน แค่เป็นตัวเองในวันนี้ก็พอ'},
+ Stressed:{e:'☁️',s:2,c:'#e5a77f',msg:'วันนี้ไม่เป็นไรที่จะพัก หายใจช้า ๆ แล้วค่อยไปต่อ'},
+ Sad:{e:'🌙',s:1,c:'#8da3c8',msg:'ให้พื้นที่กับความรู้สึกของตัวเองนะ คุณไม่จำเป็นต้องผ่านทุกอย่างคนเดียว'}
+};
+let user=null,mood=null,music=null,mode='login';
+
+function safeLoad(){
+ try{
+  const raw=window.localStorage ? localStorage.getItem(KEY) : null;
+  if(raw){const d=JSON.parse(raw);if(d&&Array.isArray(d.users)&&Array.isArray(d.moods)&&Array.isArray(d.music))return d}
+ }catch(e){}
+ return null;
+}
+function safeSet(key,value){try{localStorage.setItem(key,value);return true}catch(e){return false}}
+function safeGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
+function safeRemove(key){try{localStorage.removeItem(key)}catch(e){}}
+function safeSave(){
+ const payload=JSON.stringify(db);
+ let ok=false;
+ try{localStorage.setItem(KEY,payload);ok=true;storageMode='browser'}catch(e){storageMode='session'}
+ // Also write IndexedDB whenever available. This is a second persistence path.
+ saveIDB();
+ return ok;
+}
+function openIDB(){
+ return new Promise((resolve,reject)=>{
+  try{
+   if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));
+   const r=indexedDB.open(IDB_NAME,2);
+   r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(IDB_STORE))r.result.createObjectStore(IDB_STORE,{keyPath:'key'})};
+   r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('IndexedDB error'));
+  }catch(e){reject(e)}
+ });
+}
+async function loadIDB(){
+ try{
+  const d=await openIDB();
+  const tx=d.transaction(IDB_STORE,'readonly'),s=tx.objectStore(IDB_STORE),r=s.get('db');
+  return await new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result?r.result.value:null);r.onerror=()=>reject(r.error||new Error('read error'))});
+ }catch(e){return null}
+}
+async function saveIDB(){
+ try{
+  const d=await openIDB();
+  const tx=d.transaction(IDB_STORE,'readwrite');
+  tx.objectStore(IDB_STORE).put({key:'db',value:db});
+ }catch(e){}
+}
+async function initStorage(){
+ // First load the synchronous browser copy so Login/Create account is immediately usable.
+ const local=safeLoad();
+ if(local){db=local;storageMode='browser';return;}
+ // Recover older versions if present.
+ try{
+  const legacy=safeGet(LEGACY_KEY);
+  if(legacy){const d=JSON.parse(legacy);if(d&&Array.isArray(d.users)){db=d;storageMode='browser';safeSet(KEY,JSON.stringify(db));return;}}
+ }catch(e){}
+ // If localStorage is unavailable, recover from IndexedDB.
+ const idb=await loadIDB();
+ if(idb&&Array.isArray(idb.users)){db=idb;storageMode='indexeddb';safeSet(KEY,JSON.stringify(db));return;}
+ db={users:[],moods:[],music:[]};
+ storageMode='memory';
+}
+function saveDB(){
+ const ok=safeSave();
+ if(!ok && storageMode!=='indexeddb')storageMode='memory';
+}
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+
+function setMode(x){
+ mode=x;document.getElementById('tabLogin').classList.toggle('active',x==='login');document.getElementById('tabRegister').classList.toggle('active',x==='register');
+ document.getElementById('nameWrap').classList.toggle('hidden',x!=='register');document.getElementById('authTitle').textContent=x==='login'?'Welcome back':'Create your account';document.getElementById('authSub').textContent=x==='login'?'เข้าสู่ Mood Mirror ของคุณ':'สร้างพื้นที่เล็ก ๆ สำหรับดูแลอารมณ์ของคุณ';document.getElementById('authBtn').textContent=x==='login'?'เข้าสู่ระบบ':'สร้างบัญชี';document.getElementById('authError').classList.add('hidden');
+}
+function authSubmit(e){
+ e.preventDefault();
+ const email=(document.getElementById('email').value||'').trim().toLowerCase();
+ const pass=document.getElementById('password').value||'';
+ const name=(document.getElementById('name').value||'').trim()||email.split('@')[0]||'User';
+ if(!email||!email.includes('@'))return err('กรุณากรอก Email ให้ถูกต้อง');
+ if(pass.length<4)return err('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');
+ if(mode==='register'){
+   if(db.users.some(u=>(u.email||'').toLowerCase()===email))return err('อีเมลนี้มีบัญชีแล้ว — ลอง Login ได้เลย');
+   user={id:uid(),name,email,password:hash(pass),createdAt:new Date().toISOString(),photo:''};
+   db.users.push(user);saveDB();
+   // Verify the account exists in the in-memory database before entering the app.
+   const check=db.users.find(u=>u.id===user.id);
+   if(!check)return err('สร้างบัญชีไม่สำเร็จ กรุณาลองอีกครั้ง');
+   start();
+ }else{
+   const u=db.users.find(x=>(x.email||'').trim().toLowerCase()===email);
+   if(!u)return err('ไม่พบบัญชีนี้ — ตรวจสอบ Email หรือกด Create account');
+   const valid=(u.password===hash(pass)||u.password===pass);
+   if(!valid)return err('รหัสผ่านไม่ถูกต้อง — กรุณาลองใหม่อีกครั้ง');
+   user=u;start();
+ }
+}
+function demoLogin(){
+ let u=db.users.find(x=>(x.email||'').toLowerCase()==='demo@moodmirror.app');
+ if(!u){u={id:'demo',name:'Mook Demo',email:'demo@moodmirror.app',password:hash('demo'),createdAt:new Date().toISOString(),photo:''};db.users.push(u);
+  db.moods=[{id:uid(),userId:'demo',mood:'Happy',note:'วันนี้เริ่มต้นวันได้ดีมาก',createdAt:new Date(Date.now()-86400000*4).toISOString()},{id:uid(),userId:'demo',mood:'Calm',note:'ได้นั่งพักและฟังเพลงที่ชอบ',createdAt:new Date(Date.now()-86400000*2).toISOString()},{id:uid(),userId:'demo',mood:'Okay',note:'วันธรรมดา ๆ แต่ก็โอเค',createdAt:new Date().toISOString()},...db.moods];saveDB();}
+ user=u;start();
+}
+function err(t){const e=document.getElementById('authError');e.textContent=t;e.classList.remove('hidden')}
+function start(){
+ safeSet('MM_ACTIVE_USER',user.id);
+ document.getElementById('auth').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+ renderUser();refresh();
+}
+function restore(){
+ const id=safeGet('MM_ACTIVE_USER');
+ if(id){const u=db.users.find(x=>x.id===id);if(u){user=u;start();}}
+}
+function logout(){safeRemove('MM_ACTIVE_USER');user=null;location.reload()}
+
+function renderUser(){const initial=(user.name||'U')[0].toUpperCase();document.getElementById('miniName').textContent=user.name;document.getElementById('miniEmail').textContent=user.email;document.getElementById('pName').textContent=user.name;document.getElementById('pEmail').textContent=user.email;document.getElementById('editName').value=user.name;setAvatarImage(user.photo||'')}
+function go(p){
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));const n=document.getElementById('nav-'+p);if(n)n.classList.add('active');
+ const t={dashboard:['Good morning.','วันนี้เป็นวันที่ดีที่จะเช็กอินกับตัวเอง'],history:['Your Mood Journey','ทุกความรู้สึกมีเรื่องราว'],insight:['Your Insight','มองเห็น pattern ของอารมณ์จากข้อมูลของคุณ'],profile:['Profile','พื้นที่ส่วนตัวของคุณ']};document.getElementById('title').textContent=t[p][0];document.getElementById('subtitle').textContent=t[p][1];refresh()
+}
+function pick(x){mood=x;document.querySelectorAll('.mood').forEach(b=>b.classList.toggle('selected',b.dataset.m===x))}
+function userMoods(){return db.moods.filter(x=>x.userId===user.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))}
+function saveMood(){
+ if(!mood)return toast('กรุณาเลือก Mood ก่อน');
+ db.moods.push({id:uid(),userId:user.id,mood,note:document.getElementById('note').value.trim(),musicUrl:music?.url||'',createdAt:new Date().toISOString()});saveDB();document.getElementById('note').value='';document.getElementById('saved').textContent='✓ Saved';setTimeout(()=>document.getElementById('saved').textContent='',1600);toast('บันทึก Mood เรียบร้อยแล้ว');refresh()
+}
+function ytId(url){
+ try{const u=new URL(url.trim());let id='';if(u.hostname.includes('youtu.be'))id=u.pathname.slice(1).split('/')[0];else if(u.pathname.includes('/embed/'))id=u.pathname.split('/embed/')[1].split('/')[0];else if(u.pathname.includes('/shorts/'))id=u.pathname.split('/shorts/')[1].split('/')[0];else id=u.searchParams.get('v')||'';return /^[\w-]{6,20}$/.test(id)?id:null}catch{return null}
+}
+function addMusic(){
+ const url=document.getElementById('yt').value.trim(),id=ytId(url);if(!id)return toast('ลิงก์ YouTube ไม่ถูกต้อง');
+ music={id,url};db.music=db.music.filter(x=>x.userId!==user.id);db.music.push({id:uid(),userId:user.id,url,videoId:id,createdAt:new Date().toISOString()});saveDB();document.getElementById('yt').value='';renderPlayer();toast('เพิ่มเพลงแล้ว')
+}
+function renderPlayer(){
+ const m=db.music.find(x=>x.userId===user.id);
+ music=m?{id:m.videoId,url:m.url}:null;
+ const p=document.getElementById('player');
+ if(!music){
+   p.innerHTML='<div class="emptyplayer"><div><b>Music for your mood</b><span>ใส่ลิงก์ด้านล่าง</span></div></div>';
+   return;
+ }
+ const safeId=encodeURIComponent(music.id);
+ const safeUrl=encodeURIComponent(music.url);
+ p.innerHTML=`<div class="yt-preview">
+   <img src="https://img.youtube.com/vi/${safeId}/hqdefault.jpg" alt="YouTube thumbnail"
+        onerror="this.style.display='none'">
+   <div class="yt-overlay">
+     <button class="yt-play" onclick="openMusic('${safeUrl}')" title="ฟังเพลงบน YouTube">▶</button>
+   </div>
+   <div class="yt-caption">Mood Mirror Music · แตะ ▶ เพื่อฟังเพลง</div>
+ </div>`;
+}
+function openMusic(encodedUrl){
+ const url=decodeURIComponent(encodedUrl);
+ window.open(url,'_blank','noopener,noreferrer');
+}
+function refresh(){
+ const st=document.getElementById('storageStatus'); if(st) st.textContent=storageMode==='indexeddb'?'✓ ใช้ IndexedDB':storageMode==='browser'?'✓ บันทึกใน Browser':'⚠️ โหมดชั่วคราว — แนะนำ Export JSON เพื่อสำรองข้อมูล';
+ const rows=userMoods(),count={Happy:0,Calm:0,Okay:0,Stressed:0,Sad:0};rows.forEach(r=>count[r.mood]++);
+ const top=Object.keys(count).sort((a,b)=>count[b]-count[a])[0];
+ document.getElementById('total').textContent=rows.length;document.getElementById('topMood').textContent=rows.length?top:'—';document.getElementById('streak').textContent=calcStreak(rows);
+ document.getElementById('pLogs').textContent=rows.length;document.getElementById('pMusic').textContent=db.music.filter(x=>x.userId===user.id).length;document.getElementById('pJoined').textContent=new Date(user.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+ renderChart(rows,'miniChart',8);renderChart(rows,'historyChart',14);renderList(rows);renderInsight(rows,count);renderPlayer()
+}
+function calcStreak(rows){const days=[...new Set(rows.map(x=>x.createdAt.slice(0,10)))].sort().reverse();if(!days.length)return 0;let n=1,cur=new Date(days[0]);for(let i=1;i<days.length;i++){const d=new Date(days[i]);if(Math.round((cur-d)/86400000)===1){n++;cur=d}else break}return n}
+function renderChart(rows,id,limit){const e=document.getElementById(id);e.innerHTML='';const data=rows.slice(0,limit).reverse();if(!data.length){e.innerHTML='<div style="width:100%;text-align:center;color:#817b8c;align-self:center">ยังไม่มีข้อมูล — ลองบันทึก Mood แรกของคุณ</div>';return}data.forEach(r=>{const c=MOODS[r.mood],col=document.createElement('div');col.className='col';col.innerHTML=`<div class="barvalue">${c.e}</div><div class="bar" style="height:${c.s*17+10}%;background:linear-gradient(180deg,${c.c},#e9e0f8)"></div><div class="barlabel">${new Date(r.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short'})}</div>`;e.appendChild(col)})}
+function esc(s){return String(s||'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
+function renderList(rows){const e=document.getElementById('list');if(!rows.length){e.innerHTML='<div style="padding:35px;text-align:center;color:#817b8c">ยังไม่มี Mood History</div>';return}e.innerHTML=rows.map(r=>{const c=MOODS[r.mood];return `<div class="entry"><div class="entryicon">${c.e}</div><div><b>${esc(r.mood)}</b><div class="entrynote">${esc(r.note||'ไม่มีบันทึกข้อความ')}</div></div><div class="entrytime">${new Date(r.createdAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})}</div></div>`}).join('')}
+function renderInsight(rows,count){if(!rows.length){document.getElementById('insightMood').textContent='Start here.';document.getElementById('insightText').textContent='บันทึก Mood เพิ่มเพื่อดู pattern ของอารมณ์';document.getElementById('bars').innerHTML='';document.getElementById('reflection').textContent='ยังไม่มีข้อมูลเพียงพอ';return}const top=Object.keys(count).sort((a,b)=>count[b]-count[a])[0],pct=Math.round(count[top]/rows.length*100);document.getElementById('insightMood').textContent=MOODS[top].e+' '+top;document.getElementById('insightText').textContent=`${top} เป็น Mood ที่พบมากที่สุด คิดเป็นประมาณ ${pct}% ของการบันทึกทั้งหมด`;document.getElementById('bars').innerHTML=Object.keys(count).map(m=>{const p=Math.round(count[m]/rows.length*100);return `<div style="margin:13px 0"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>${MOODS[m].e} ${m}</span><b>${p}%</b></div><div class="progress"><i style="width:${p}%;background:${MOODS[m].c}"></i></div></div>`}).join('');document.getElementById('response').textContent=MOODS[top].msg;document.getElementById('reflection').textContent=rows[0].note?`บันทึกล่าสุด: “${rows[0].note}” — ลองกลับมาอ่านอีกครั้งในวันที่ความรู้สึกเปลี่ยนไป`:'การบันทึกสั้น ๆ ทุกวันช่วยให้เห็นเรื่องราวของตัวเองชัดขึ้น'}
+function setAvatarImage(data){
+ const big=document.getElementById('bigAvatar'),mini=document.getElementById('miniAvatar');
+ const initial=(user.name||'U')[0].toUpperCase();
+ if(data){
+   big.style.backgroundImage=`url("${data}")`;big.textContent='';
+   mini.style.backgroundImage=`url("${data}")`;mini.textContent='';
+ }else{
+   big.style.backgroundImage='';big.textContent=initial;
+   mini.style.backgroundImage='';mini.textContent=initial;
+ }
+}
+function changePhoto(e){
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ if(!file.type.startsWith('image/')){toast('กรุณาเลือกไฟล์รูปภาพ');e.target.value='';return}
+ if(file.size>3*1024*1024){toast('รูปใหญ่เกินไป กรุณาเลือกไม่เกิน 3 MB');e.target.value='';return}
+ const reader=new FileReader();
+ reader.onload=()=>{
+   user.photo=reader.result;
+   db.users=db.users.map(x=>x.id===user.id?user:x);
+   saveDB();setAvatarImage(user.photo);toast('เปลี่ยนรูปโปรไฟล์แล้ว');
+ };
+ reader.onerror=()=>toast('อ่านรูปไม่สำเร็จ กรุณาลองรูปอื่น');
+ reader.readAsDataURL(file);e.target.value='';
+}
+function removePhoto(){
+ user.photo='';db.users=db.users.map(x=>x.id===user.id?user:x);saveDB();setAvatarImage('');toast('ลบรูปโปรไฟล์แล้ว');
+}
+function saveProfile(){const n=document.getElementById('editName').value.trim();if(!n)return;user.name=n;db.users=db.users.map(x=>x.id===user.id?user:x);saveDB();renderUser();toast('บันทึกโปรไฟล์แล้ว')}
+function exportData(){const payload={app:'Mood Mirror',exportedAt:new Date().toISOString(),user:{name:user.name,email:user.email,createdAt:user.createdAt},moods:userMoods(),music:db.music.filter(x=>x.userId===user.id)};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='mood-mirror-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function clearData(){if(!confirm('ต้องการลบ Mood History ของบัญชีนี้ทั้งหมดหรือไม่?'))return;db.moods=db.moods.filter(x=>x.userId!==user.id);saveDB();toast('ลบข้อมูลแล้ว');refresh()}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+initStorage().then(restore);
+</script>
+</body>
+</html>
